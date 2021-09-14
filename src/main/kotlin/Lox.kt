@@ -27,6 +27,9 @@ class Lox {
     private fun runFile(path: String) {
         val bytes =  Files.readAllBytes(Paths.get(path))
         run(String(bytes, Charset.defaultCharset()))
+
+        if (hadError)
+            exitProcess(65)
     }
 
     /**
@@ -40,6 +43,7 @@ class Lox {
             print("> ")
             val line = readLine() ?: break
             run(line)
+            hadError = false
         } while (true)
     }
 
@@ -55,5 +59,25 @@ class Lox {
             println(token)
         }
     }
+
+    /*
+        Kotlin doesn't allow java static functions.
+        Instead, it encourages either package level functions,
+        or companion objects.
+        https://kotlinlang.org/docs/classes.html#companion-objects
+        https://stackoverflow.com/questions/40352684/what-is-the-equivalent-of-java-static-methods-in-kotlin
+     */
+    companion object{
+        var hadError : Boolean = false
+
+        fun error(line: Int, message: String) {
+            report(line, "", message)
+        }
+        private fun report(line: Int, where: String, message: String) {
+            println("[line $line] Error $where : $message")
+            hadError = true
+        }
+    }
+
 
 }
