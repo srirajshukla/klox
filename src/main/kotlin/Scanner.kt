@@ -91,9 +91,48 @@ class Scanner(private var source: String) {
             // Now string literals
             '"' -> string()
 
-            else -> Lox.error(line, "Unexpected Character.")
+
+            else -> {
+                if (isDigit(c)){
+                    number()
+                } else{
+                    Lox.error(line, "Unexpected Character.")
+                }
+            }
         }
     }
+
+    private fun number() {
+        while(isDigit(peek())) advance()
+
+        /**
+         * We are checking if this is a decimal number
+         * or not, also since we are not allowing
+         * numbers ending with . such as `123.`,
+         * we are making sure char next to . is a digit.
+         */
+        if(peek()=='.' && isDigit(peekNext())){
+            advance()
+            while (isDigit(peek())) advance()
+        }
+
+        this.addToken(NUMBER, source.substring(start, current).toDouble())
+    }
+
+    private fun peekNext(): Char {
+        if (current+1>=source.length)
+            return '\u0000'
+
+        return source[current+1]
+    }
+
+    /**
+     * Checks if the numbers are between 0 and 9
+     * We are not using c.isDigit as it also returns
+     * true for number from other script, like Devanagari,
+     * or full width numbers etc.
+     */
+    private fun isDigit(c: Char): Boolean = c in '0'..'9'
 
     private fun string() {
         while(!isAtEnd() && peek()!= '"') {
