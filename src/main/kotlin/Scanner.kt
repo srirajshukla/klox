@@ -88,8 +88,29 @@ class Scanner(private var source: String) {
             '\t' -> {}
             '\n' -> line++
 
+            // Now string literals
+            '"' -> string()
+
             else -> Lox.error(line, "Unexpected Character.")
         }
+    }
+
+    private fun string() {
+        while(!isAtEnd() && peek()!= '"') {
+            if (peek()=='\n')   line++
+            advance()
+        }
+
+        if (isAtEnd()){
+            Lox.error(line, "unterminated string")
+            return
+        }
+
+        // move by the closing `"`
+        advance()
+
+        val valueOfStringLiteral = source.substring(start+1, current-1)
+        addToken(STRING, valueOfStringLiteral)
     }
 
     /**
