@@ -54,7 +54,7 @@ class Lox {
      */
     private fun run(source: String){
         val scanner = Scanner(source)
-        val tokens = scanner.tokens().toList()
+        val tokens = scanner.scanTokens()
 
         for(token in tokens){
             println(token)
