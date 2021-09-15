@@ -14,6 +14,28 @@ class Scanner(private var source: String) {
     private var current = 0
     private var line = 1
 
+    companion object{
+        private var keywords = hashMapOf<String, TokenType>()
+        init {
+            keywords["and"] = AND
+            keywords["class"] = CLASS
+            keywords["else"] = ELSE
+            keywords["false"] = FALSE
+            keywords["for"] = FOR
+            keywords["fun"] = FUN
+            keywords["if"] = IF
+            keywords["nil"] = NIL
+            keywords["or"] = OR
+            keywords["print"] = PRINT
+            keywords["return"] = RETURN
+            keywords["super"] = SUPER
+            keywords["this"] = THIS
+            keywords["true"] = TRUE
+            keywords["var"] = VAR
+            keywords["while"] = WHILE
+        }
+    }
+
     fun scanTokens(): ArrayList<Token> {
         while (!isAtEnd()) {
             // we are at the beginning of next lexeme.
@@ -95,11 +117,34 @@ class Scanner(private var source: String) {
             else -> {
                 if (isDigit(c)){
                     number()
+                }
+                // We assume that if the character is an alphabet or _,
+                // it will be start of an identifier
+                // todo: try changing the match to regex match like: "[A-Za-z_]".toRegex()
+                else if (isAlpha(c)){
+                    identifier()
                 } else{
                     Lox.error(line, "Unexpected Character.")
                 }
             }
         }
+    }
+
+    private fun identifier() {
+        while(isAlphaNumeric(peek()) ) advance()
+
+        val text = source.substring(start, current)
+        val tokenType = keywords[text] ?: IDENTIFIERS
+
+        addToken(tokenType)
+    }
+
+    private fun isAlphaNumeric(c: Char): Boolean {
+        return isAlpha(c) || isDigit(c)
+    }
+
+    private fun isAlpha(c: Char): Boolean {
+        return c in 'a'..'z' || c in 'A'..'Z' || c=='_'
     }
 
     private fun number() {
@@ -115,6 +160,7 @@ class Scanner(private var source: String) {
             advance()
             while (isDigit(peek())) advance()
         }
+        // todo: add error handling if the number is not a valid number
 
         this.addToken(NUMBER, source.substring(start, current).toDouble())
     }

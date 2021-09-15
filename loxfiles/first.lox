@@ -1,4 +1,6 @@
+var name = "valid now?"
 var x = 30
 var y = 20
+var z = 20.8
 var sum = x + y
 print sum
