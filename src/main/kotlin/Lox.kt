@@ -8,6 +8,7 @@ import kotlin.system.exitProcess
 
 class Lox {
     /**
+     * The main class Lox
      * @param: The array of strings the program was initialized with
      */
     fun main(args: Array<String>){
