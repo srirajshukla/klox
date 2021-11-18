@@ -1,5 +1,20 @@
 import kotlin.math.exp
 
+/**
+ * We are implementing the Visitor interface as AstPrinter class.
+ * When we get any expression, say a binary expr, and we call the
+ * print method on it, it calls the accept method of the binary expr
+ * (as `this` type is `Expr` and it is overloaded in each subclass.
+ * Now, in the Expr abstract class and all its derived classes -
+ * they implement call `visitor<theirownname>` class, and we are
+ * implementing those classes here. So effectively, we are calling the
+ * relevant expr derived class by these steps -
+ * 1. Call accept method on expr type
+ * 2. Expr derived class call relevant class of the interface
+ * 3. We are implementing the interface and all its method here
+ * 4. So we are calling the relevant function according to the type
+ */
+
 class AstPrinter : Expr.Visitor<String> {
     fun print(expr: Expr) : String {
         return expr.accept(this)
