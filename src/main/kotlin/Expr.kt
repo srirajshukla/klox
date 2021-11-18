@@ -37,8 +37,8 @@ abstract class Expr {
             }
         }
 
-        class Literal(value: Any) : Expr() {
-            val value: Any
+        class Literal(value: Any?) : Expr() {
+            val value: Any?
 
             init {
                 this.value = value
