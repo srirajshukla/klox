@@ -4,8 +4,11 @@
  */
 
 class Parser(private var tokens: List<Token>) {
-    var current : Int = 0
+    private var current : Int = 0
 
+    companion object {
+        private class ParseError : RuntimeException()
+    }
 
     private fun expression() : Expr {
         return equality()
@@ -91,7 +94,9 @@ class Parser(private var tokens: List<Token>) {
             return Expr.Companion.Grouping(expr)
         }
 
-        // create an error here
+        // If none of the primary grammar rules are matched,
+        // it is an error
+        throw error(peek(), "Expected an expression.")
     }
 
     private fun consume(type: TokenType, message: String) : Token {
@@ -100,10 +105,44 @@ class Parser(private var tokens: List<Token>) {
         throw error(peek(), message)
     }
 
+    /**
+     * start error handling
+     */
     private fun error(token: Token, message: String) : ParseError {
-
+        Lox.error(token, message)
+        return ParseError()
     }
 
+    private fun synchronize() {
+        advance()
+
+        while(!isAtEnd()){
+            if (previous().type == TokenType.SEMICOLON)
+                return
+
+            when(peek().type) {
+                TokenType.CLASS -> return
+                TokenType.FUN -> return
+                TokenType.VAR -> return
+                TokenType.FOR -> return
+                TokenType.IF -> return
+                TokenType.WHILE -> return
+                TokenType.PRINT -> return
+                TokenType.RETURN -> return
+                else -> {}
+            }
+
+            advance()
+        }
+    }
+
+    /**
+     * end error handling
+     */
+
+    /**
+     * start helper methods for parsing
+     */
 
     private fun match(vararg types: TokenType) : Boolean{
         for(type in types){
@@ -138,5 +177,17 @@ class Parser(private var tokens: List<Token>) {
 
     private fun previous() : Token {
         return tokens.get(current-1)
+    }
+
+    /**
+     * end helper functions
+     */
+
+    fun parse() : Expr? {
+        return try {
+            expression()
+        } catch (error: ParseError) {
+            null
+        }
     }
 }
