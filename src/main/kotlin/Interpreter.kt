@@ -118,4 +118,27 @@ class Interpreter : Expr.Visitor<Any?> {
      * end error handling helper function
      */
 
+    fun interpret(expression: Expr) {
+        try {
+            val value = evaluate(expression)
+            println(stringify(value))
+        } catch (error: RuntimeError) {
+            Lox.runtimeError(error)
+        }
+    }
+
+    private fun stringify(value: Any?) : String {
+        if (value==null)
+            return "nil"
+
+        if (value is Double){
+            var valueStr = value.toString()
+            if (valueStr.endsWith(".0")) {
+                valueStr = valueStr.substring(0, valueStr.length-2)
+            }
+            return valueStr
+        }
+
+        return value.toString()
+    }
 }

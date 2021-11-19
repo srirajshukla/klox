@@ -30,6 +30,8 @@ class Lox {
 
         if (hadError)
             exitProcess(65)
+        if (hadRuntimeError)
+            exitProcess(70)
     }
 
     /**
@@ -61,11 +63,10 @@ class Lox {
         if (hadError)
             return
 
-        if (expression==null){
-            println("Null statement")
-        } else {
-            println(AstPrinter().print(expression))
+        if (expression != null) {
+            interpreter.interpret(expression)
         }
+        // todo: Allow null expressions
     }
 
     /*
@@ -76,7 +77,9 @@ class Lox {
         https://stackoverflow.com/questions/40352684/what-is-the-equivalent-of-java-static-methods-in-kotlin
      */
     companion object{
+        var interpreter: Interpreter = Interpreter()
         var hadError : Boolean = false
+        var hadRuntimeError: Boolean = false
 
         fun error(line: Int, message: String) {
             report(line, "", message)
@@ -91,6 +94,11 @@ class Lox {
             } else{
                 report(token.line, "at '${token.lexeme}'", message)
             }
+        }
+
+        fun runtimeError(error: RuntimeError) {
+            System.err.println(error.message + "\n[Line " + error.token.line + "]")
+            hadRuntimeError = true
         }
     }
 
