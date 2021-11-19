@@ -3,7 +3,6 @@ import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
 import kotlin.system.exitProcess
 
 class Lox {
@@ -56,8 +55,16 @@ class Lox {
         val scanner = Scanner(source)
         val tokens = scanner.scanTokens()
 
-        for(token in tokens){
-            println(token)
+        val parser = Parser(tokens)
+        val expression = parser.parse()
+
+        if (hadError)
+            return
+
+        if (expression==null){
+            println("Null statement")
+        } else {
+            println(AstPrinter().print(expression))
         }
     }
 
