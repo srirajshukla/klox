@@ -65,6 +65,8 @@ class Lox {
 
         if (expression != null) {
             interpreter.interpret(expression)
+        } else{
+            println("null?")
         }
         // todo: Allow null expressions
     }
@@ -97,7 +99,8 @@ class Lox {
         }
 
         fun runtimeError(error: RuntimeError) {
-            System.err.println(error.message + "\n[Line " + error.token.line + "]")
+            // System.err.println prints the error after > so, using println
+            println(error.message + "\n[Line " + error.token.line + "]")
             hadRuntimeError = true
         }
     }

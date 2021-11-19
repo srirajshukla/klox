@@ -6,24 +6,24 @@ class Interpreter : Expr.Visitor<Any?> {
 
         return when (expr.operator.type) {
             TokenType.GREATER -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() > right.toString().toDouble()
             }
             TokenType.GREATER_EQUAL -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() >= right.toString().toDouble()
             }
             TokenType.LESS -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() < right.toString().toDouble()
             }
             TokenType.LESS_EQUAL -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() <= right.toString().toDouble()
             }
 
             TokenType.MINUS -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() - right.toString().toDouble()
             }
             /**
@@ -39,11 +39,11 @@ class Interpreter : Expr.Visitor<Any?> {
                 }
             }
             TokenType.SLASH -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() / right.toString().toDouble()
             }
             TokenType.STAR  -> {
-                checkNumberOperands(expr.operator, expr.left, expr.right)
+                checkNumberOperands(expr.operator, left, right)
                 left.toString().toDouble() * right.toString().toDouble()
             }
 
