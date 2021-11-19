@@ -1,5 +1,3 @@
-import kotlin.math.exp
-
 class Interpreter : Expr.Visitor<Any?> {
 
     override fun visitBinaryExpr(expr: Expr.Companion.Binary): Any? {
@@ -7,12 +5,27 @@ class Interpreter : Expr.Visitor<Any?> {
         val right = evaluate(expr.right)
 
         return when (expr.operator.type) {
-            TokenType.GREATER -> left.toString().toDouble() > right.toString().toDouble()
-            TokenType.GREATER_EQUAL -> left.toString().toDouble() >= right.toString().toDouble()
-            TokenType.LESS -> left.toString().toDouble() < right.toString().toDouble()
-            TokenType.LESS_EQUAL -> left.toString().toDouble() <= right.toString().toDouble()
+            TokenType.GREATER -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() > right.toString().toDouble()
+            }
+            TokenType.GREATER_EQUAL -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() >= right.toString().toDouble()
+            }
+            TokenType.LESS -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() < right.toString().toDouble()
+            }
+            TokenType.LESS_EQUAL -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() <= right.toString().toDouble()
+            }
 
-            TokenType.MINUS -> left.toString().toDouble() - right.toString().toDouble()
+            TokenType.MINUS -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() - right.toString().toDouble()
+            }
             /**
              * We've overloaded the PLUS TokenType for number and string types
              */
@@ -22,11 +35,17 @@ class Interpreter : Expr.Visitor<Any?> {
                 } else if (left is String && right is String) {
                     left.toString() + right.toString()
                 } else {
-                    null
+                    throw RuntimeError(expr.operator, "operands must be two numbers or two strings")
                 }
             }
-            TokenType.SLASH -> left.toString().toDouble() / right.toString().toDouble()
-            TokenType.STAR  -> left.toString().toDouble() * right.toString().toDouble()
+            TokenType.SLASH -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() / right.toString().toDouble()
+            }
+            TokenType.STAR  -> {
+                checkNumberOperands(expr.operator, expr.left, expr.right)
+                left.toString().toDouble() * right.toString().toDouble()
+            }
 
             TokenType.BANG_EQUAL -> !isEqual(left, right)
             TokenType.EQUAL_EQUAL -> isEqual(left, right)
@@ -48,7 +67,10 @@ class Interpreter : Expr.Visitor<Any?> {
 
         return when (expr.operator.type) {
             TokenType.BANG -> !isTruthy(right)
-            TokenType.MINUS -> -right.toString().toDouble()
+            TokenType.MINUS -> {
+                checkNumberOperand(expr.operator, right)
+                -right.toString().toDouble()
+            }
             else -> null
         }
 
@@ -77,4 +99,23 @@ class Interpreter : Expr.Visitor<Any?> {
 
         return obj1.equals(obj2)
     }
+
+    /**
+     * begin error handling helper function
+     */
+    private fun checkNumberOperand(operator: Token, operand: Any?){
+        if (operand is Double)
+            return
+        throw RuntimeError(operator, "Operand must be a number.")
+    }
+
+    private fun checkNumberOperands(operator: Token, left: Any?, right: Any?) {
+        if (left is Double && right is Double)
+            return
+        throw RuntimeError(operator, "operands must be a number")
+    }
+    /**
+     * end error handling helper function
+     */
+
 }
