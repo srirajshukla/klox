@@ -1,26 +1,35 @@
 The grammar for Lox
 
 ```
-expression     → equality ;
+program         → statement* EOF ;
 
-equality       → comparison ( ( "!=" 
+statement       → exprStmt
+                    | printStmt ;
+
+exprStmt        → expression ";" ;
+
+printStmt       → "print" expression ";" ;
+
+expression      → equality ;
+
+equality        → comparison ( ( "!=" 
                     | "==" ) comparison )* ;
 
-comparison     → term ( ( ">" 
+comparison      → term ( ( ">" 
                     | ">=" 
                     | "<" 
                     | "<=" ) term )* ;
 
-term           → factor ( ( "-" 
+term            → factor ( ( "-" 
                     | "+" ) factor )* ;
 
-factor         → unary ( ( "/" 
+factor          → unary ( ( "/" 
                     | "*" ) unary )* ;
 
-unary          → ( "!" | "-" ) unary
+unary           → ( "!" | "-" ) unary
                     | primary ;
 
-primary        → NUMBER 
+primary         → NUMBER 
                     | STRING 
                     | "true" 
                     | "false" 
