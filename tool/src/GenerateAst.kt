@@ -23,9 +23,14 @@ class GenerateAst {
                 "Binary   - left: Expr, operator: Token, right: Expr",
                 "Grouping - expressions: Expr",
                 "Literal  - value: Any",
-                "Unary    - operator: Token, right: Expr"
+                "Unary    - operator: Token, right: Expr",
             )
             )
+
+            defineAst(outputDir, "Stmt", listOf(
+                "Expression - expression: Expr",
+                "Print      - expression: Expr",
+            ))
         }
 
         private fun defineAst(outputDir: String, baseName: String, types: List<String>) {
