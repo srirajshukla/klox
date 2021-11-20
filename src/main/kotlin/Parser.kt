@@ -10,6 +10,24 @@ class Parser(private var tokens: List<Token>) {
         private class ParseError : RuntimeException()
     }
 
+    private fun statement() : Stmt {
+        if (match(TokenType.PRINT))
+            return printStatement()
+        return expressionStatement()
+    }
+
+    private fun printStatement() : Stmt {
+        val value : Expr = expression()
+        consume(TokenType.SEMICOLON, "Expected ; after value")
+        return Stmt.Companion.Print(value)
+    }
+
+    private fun expressionStatement() : Stmt {
+        val expr : Expr = expression()
+        consume(TokenType.SEMICOLON, "Expected ; after value")
+        return Stmt.Companion.Expression(expr)
+    }
+
     private fun expression() : Expr {
         return equality()
     }
@@ -183,11 +201,11 @@ class Parser(private var tokens: List<Token>) {
      * end helper functions
      */
 
-    fun parse() : Expr? {
-        return try {
-            expression()
-        } catch (error: ParseError) {
-            null
+    fun parse() : List<Stmt> {
+        val statements = mutableListOf<Stmt>()
+        while(!isAtEnd()){
+            statements.add(statement())
         }
+        return statements
     }
 }

@@ -58,13 +58,13 @@ class Lox {
         val tokens = scanner.scanTokens()
 
         val parser = Parser(tokens)
-        val expression = parser.parse()
+        val statements : List<Stmt> = parser.parse()
 
         if (hadError)
             return
 
-        if (expression != null) {
-            interpreter.interpret(expression)
+        if (statements != null) {
+            interpreter.interpret(statements)
         } else{
             println("null?")
         }

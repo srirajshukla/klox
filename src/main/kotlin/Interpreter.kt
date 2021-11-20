@@ -1,4 +1,4 @@
-class Interpreter : Expr.Visitor<Any?> {
+class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
 
     override fun visitBinaryExpr(expr: Expr.Companion.Binary): Any? {
         val left = evaluate(expr.left)
@@ -76,6 +76,16 @@ class Interpreter : Expr.Visitor<Any?> {
 
     }
 
+    override fun visitExpressionStmt(stmt: Stmt.Companion.Expression) {
+        evaluate(stmt.expression)
+    }
+
+    override fun visitPrintStmt(stmt: Stmt.Companion.Print) {
+        val value = evaluate(stmt.expression)
+        println(stringify(value))
+    }
+
+
     private fun evaluate(expr: Expr) : Any? {
         return expr.accept(this)
     }
@@ -117,11 +127,13 @@ class Interpreter : Expr.Visitor<Any?> {
     /**
      * end error handling helper function
      */
+    private fun execute(statement: Stmt) = statement.accept(this)
 
-    fun interpret(expression: Expr) {
+    fun interpret(statements: List<Stmt>) {
         try {
-            val value = evaluate(expression)
-            println(stringify(value))
+            for (statement in statements){
+                execute(statement)
+            }
         } catch (error: RuntimeError) {
             Lox.runtimeError(error)
         }
