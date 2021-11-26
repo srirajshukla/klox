@@ -83,6 +83,23 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
 
     }
 
+    override fun visitBlockStmt(stmt: Stmt.Companion.Block) {
+        executeBlock(stmt.statements, Environment(environment))
+    }
+
+    private fun executeBlock(statements: List<Stmt>, environment: Environment){
+        val previous = this.environment
+        try {
+            this.environment = environment
+
+            for (statement in statements){
+                execute(statement)
+            }
+        } finally {
+            this.environment = previous
+        }
+    }
+
     override fun visitExpressionStmt(stmt: Stmt.Companion.Expression) {
         evaluate(stmt.expression)
     }
