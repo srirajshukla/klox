@@ -1,6 +1,12 @@
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     private var environment = Environment()
 
+    override fun visitAssignExpr(expr: Expr.Companion.Assign): Any? {
+        val value = evaluate(expr.value)
+        environment.assign(expr.name, value)
+        return value
+    }
+
     override fun visitBinaryExpr(expr: Expr.Companion.Binary): Any? {
         val left = evaluate(expr.left)
         val right = evaluate(expr.right)

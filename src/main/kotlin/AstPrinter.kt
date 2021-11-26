@@ -1,5 +1,3 @@
-import kotlin.math.exp
-
 /**
  * We are implementing the Visitor interface as AstPrinter class.
  * When we get any expression, say a binary expr, and we call the
@@ -52,6 +50,10 @@ class AstPrinter : Expr.Visitor<String> {
 
     override fun visitVariableExpr(expr: Expr.Companion.Variable): String {
         return expr.name.lexeme
+    }
+
+    override fun visitAssignExpr(expr: Expr.Companion.Assign): String {
+        return parenthesize("assignment", expr)
     }
 }
 
