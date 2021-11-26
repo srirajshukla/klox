@@ -9,7 +9,10 @@ declaration     → varDecl
 varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement       → exprStmt
-                    | printStmt ;
+                    | printStmt 
+                    | block;
+
+blocks          → "{"   declaration* "}" ;
 
 exprStmt        → expression ";" ;
 
