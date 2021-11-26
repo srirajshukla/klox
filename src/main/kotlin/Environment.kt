@@ -1,5 +1,6 @@
 class Environment {
-    private var values = mutableMapOf<String, Any?>()
+    private var values = hashMapOf<String, Any?>()
+
 
     fun define(name: String, value: Any?) {
         values.put(name, value)
