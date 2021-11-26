@@ -1,4 +1,5 @@
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
+    private var environment = Environment()
 
     override fun visitBinaryExpr(expr: Expr.Companion.Binary): Any? {
         val left = evaluate(expr.left)
@@ -86,7 +87,9 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
     }
 
 
-    private fun evaluate(expr: Expr) : Any? {
+    private fun evaluate(expr: Expr?) : Any? {
+        if (expr==null)
+            return null
         return expr.accept(this)
     }
 
@@ -108,6 +111,19 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
             return false
 
         return obj1.equals(obj2)
+    }
+
+    override fun visitVarStmt(stmt: Stmt.Companion.Var) {
+        var value : Any? =  null
+        if (stmt.initializer != null){
+            value = evaluate(stmt.initializer)
+        }
+
+        environment.define(stmt.name.lexeme, value)
+    }
+
+    override fun visitVariableExpr(expr: Expr.Companion.Variable): Any? {
+        return environment.get(expr.name)
     }
 
     /**

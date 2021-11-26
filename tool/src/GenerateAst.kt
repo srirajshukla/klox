@@ -22,14 +22,16 @@ class GenerateAst {
             defineAst(outputDir, "Expr", listOf(
                 "Binary   - left: Expr, operator: Token, right: Expr",
                 "Grouping - expressions: Expr",
-                "Literal  - value: Any",
+                "Literal  - value: Any?",
                 "Unary    - operator: Token, right: Expr",
+                "Variable - name: Token"
             )
             )
 
             defineAst(outputDir, "Stmt", listOf(
-                "Expression - expression: Expr",
+                "Expression - expression: Expr?",
                 "Print      - expression: Expr",
+                "Var        - name: Token, initializer: Expr?"
             ))
         }
 

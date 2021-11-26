@@ -49,6 +49,10 @@ class AstPrinter : Expr.Visitor<String> {
         builder.append(")")
         return builder.toString()
     }
+
+    override fun visitVariableExpr(expr: Expr.Companion.Variable): String {
+        return expr.name.lexeme
+    }
 }
 
 fun main(){
