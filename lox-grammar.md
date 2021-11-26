@@ -1,7 +1,12 @@
 The grammar for Lox
 
 ```
-program         → statement* EOF ;
+program         → declaration* EOF ;
+
+declaration     → varDecl
+                    | statemnt ;
+
+varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement       → exprStmt
                     | printStmt ;
@@ -34,7 +39,8 @@ primary         → NUMBER
                     | "true" 
                     | "false" 
                     | "nil"
-                    | "(" expression ")" ;
+                    | "(" expression ")" 
+                    | IDENTIFIER;
 ```
 
 
