@@ -9,8 +9,12 @@ declaration     → varDecl
 varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement       → exprStmt
+                    | ifStmt
                     | printStmt 
                     | block;
+
+ifStmt          → "if" "(" expression ")" statement
+                    ("else"  statement)?
 
 blocks          → "{"   declaration* "}" ;
 

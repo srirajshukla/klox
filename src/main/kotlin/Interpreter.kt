@@ -83,6 +83,17 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Unit> {
 
     }
 
+    /**
+     * Visitor for IF-ELSE block
+     */
+    override fun visitIfStmt(stmt: Stmt.Companion.If) {
+        if (isTruthy(evaluate(stmt.condition))){
+            execute(stmt.thenBranch)
+        } else if (stmt.elseBranch != null){
+            execute(stmt.elseBranch)
+        }
+    }
+
     override fun visitBlockStmt(stmt: Stmt.Companion.Block) {
         executeBlock(stmt.statements, Environment(environment))
     }

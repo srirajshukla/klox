@@ -1,0 +1,16 @@
+var a = 32;
+if (a>11) {
+    print "a is greater than 11";
+} else {
+    print "a is less than 11";
+}
+
+print "Reassigning a to 10";
+a = 10;
+print "Reassigned a to 10. Now checking again ... ";
+
+if (a>11) {
+    print "a is greater than 11";
+} else {
+    print "a is less than 11";
+}
