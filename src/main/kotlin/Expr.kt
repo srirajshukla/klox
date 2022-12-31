@@ -6,6 +6,7 @@ abstract class Expr {
         fun visitBinaryExpr(expr: Binary): R
         fun visitGroupingExpr(expr: Grouping): R
         fun visitLiteralExpr(expr: Literal): R
+        fun visitLogicalExpr(expr: Logical): R
         fun visitUnaryExpr(expr: Unary): R
         fun visitVariableExpr(expr: Variable): R
     }
@@ -62,6 +63,22 @@ abstract class Expr {
 
             override fun <R> accept(visitor: Visitor<R>): R {
                 return visitor.visitLiteralExpr(this)
+            }
+        }
+
+        class Logical(left: Expr, operator: Token, right: Expr) : Expr() {
+            val left: Expr
+            val operator: Token
+            val right: Expr
+
+            init {
+                this.left = left
+                this.operator = operator
+                this.right = right
+            }
+
+            override fun <R> accept(visitor: Visitor<R>): R {
+                return visitor.visitLogicalExpr(this)
             }
         }
 
