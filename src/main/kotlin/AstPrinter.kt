@@ -33,6 +33,10 @@ class AstPrinter : Expr.Visitor<String> {
         return expr.value.toString()
     }
 
+    override fun visitLogicalExpr(expr: Expr.Companion.Logical): String {
+        return "${parenthesize("left: ", expr.left)} ${expr.operator.lexeme} ${parenthesize("right: ", expr.right)}"
+    }
+
     override fun visitUnaryExpr(expr: Expr.Companion.Unary): String {
         return parenthesize(expr.operator.lexeme, expr.right)
     }
@@ -68,4 +72,12 @@ fun main(){
         ))
 
     println(AstPrinter().print(expression))
+
+    val logicalExpression = Expr.Companion.Logical(
+        Expr.Companion.Literal(false),
+        Token(TokenType.OR, "or", "or", 1),
+        Expr.Companion.Literal(true)
+    )
+
+    println(AstPrinter().print(logicalExpression))
 }
