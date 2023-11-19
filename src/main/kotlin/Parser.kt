@@ -38,6 +38,8 @@ class Parser(private var tokens: List<Token>) {
             return ifStatement()
         if (match(TokenType.PRINT))
             return printStatement()
+        if (match(TokenType.WHILE))
+            return whileStatement()
         if (match(TokenType.LEFT_BRACE))
             return Stmt.Companion.Block(block())
         return expressionStatement()
@@ -56,6 +58,15 @@ class Parser(private var tokens: List<Token>) {
         }
 
         return Stmt.Companion.If(condition, thenBranch, elseBranch)
+    }
+
+    private fun whileStatement() : Stmt {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        val condition = expression()
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        val body = statement()
+
+        return Stmt.Companion.While(condition, body)
     }
 
     private fun block() : List<Stmt> {
