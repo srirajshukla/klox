@@ -4,13 +4,13 @@
  */
 
 class Parser(private var tokens: List<Token>) {
-    private var current : Int = 0
+    private var current: Int = 0
 
     companion object {
         private class ParseError : RuntimeException()
     }
 
-    private fun declarations() : Stmt?{
+    private fun declarations(): Stmt? {
         try {
             if (match(TokenType.VAR))
                 return varDeclaration()
@@ -21,11 +21,11 @@ class Parser(private var tokens: List<Token>) {
         }
     }
 
-    private fun varDeclaration() : Stmt {
-        val name : Token = consume(TokenType.IDENTIFIERS, "Expected a variable name.")
+    private fun varDeclaration(): Stmt {
+        val name: Token = consume(TokenType.IDENTIFIERS, "Expected a variable name.")
 
-        var initializer : Expr? = null
-        if (match(TokenType.EQUAL)){
+        var initializer: Expr? = null
+        if (match(TokenType.EQUAL)) {
             initializer = expression()
         }
 
@@ -33,7 +33,9 @@ class Parser(private var tokens: List<Token>) {
         return Stmt.Companion.Var(name, initializer)
     }
 
-    private fun statement() : Stmt {
+    private fun statement(): Stmt {
+        if (match(TokenType.FOR))
+            return forStatement()
         if (match(TokenType.IF))
             return ifStatement()
         if (match(TokenType.PRINT))
@@ -45,22 +47,69 @@ class Parser(private var tokens: List<Token>) {
         return expressionStatement()
     }
 
-    private fun ifStatement() : Stmt {
-        consume(TokenType.LEFT_PAREN,"Expected ( after 'if'.")
+    private fun forStatement(): Stmt {
+        consume(TokenType.LEFT_PAREN, "Expected '(' after for.")
+
+        val initializer: Stmt? = if (match(TokenType.SEMICOLON))
+            null
+        else if (match(TokenType.VAR))
+            varDeclaration()
+        else
+            expressionStatement()
+
+
+        var condition: Expr? = if (!check(TokenType.SEMICOLON)) {
+            expression()
+        } else {
+            null
+        }
+        consume(TokenType.SEMICOLON, "Expected ';' after loop condition.")
+
+        val increment: Expr? = if (!check(TokenType.RIGHT_PAREN)) {
+            expression()
+        } else {
+            null
+        }
+
+        consume(TokenType.RIGHT_PAREN, "Expected ')' after for clauses.")
+
+        var body = statement()
+
+        if (increment != null) {
+            body = Stmt.Companion.Block(
+                listOf(body, Stmt.Companion.Expression(increment))
+            )
+        }
+
+        if (condition == null) {
+            condition = Expr.Companion.Literal(true)
+        }
+
+        body = Stmt.Companion.While(condition, body)
+
+        if (initializer != null) {
+            body = Stmt.Companion.Block(listOf(initializer, body))
+        }
+
+        return body
+    }
+
+    private fun ifStatement(): Stmt {
+        consume(TokenType.LEFT_PAREN, "Expected ( after 'if'.")
         val condition = expression()
         consume(TokenType.RIGHT_PAREN, "Expected ) after 'if' condition.")
 
         val thenBranch = statement()
-        var elseBranch : Stmt? = null
+        var elseBranch: Stmt? = null
 
-        if (match(TokenType.ELSE)){
+        if (match(TokenType.ELSE)) {
             elseBranch = statement()
         }
 
         return Stmt.Companion.If(condition, thenBranch, elseBranch)
     }
 
-    private fun whileStatement() : Stmt {
+    private fun whileStatement(): Stmt {
         consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
         val condition = expression()
         consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
@@ -69,10 +118,10 @@ class Parser(private var tokens: List<Token>) {
         return Stmt.Companion.While(condition, body)
     }
 
-    private fun block() : List<Stmt> {
+    private fun block(): List<Stmt> {
         val statements = mutableListOf<Stmt>()
 
-        while(!check(TokenType.RIGHT_BRACE) && !isAtEnd()){
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
             declarations()?.let { statements.add(it) }
             // if declarations are not null, then call
             // lambda and add it to statements list
@@ -82,23 +131,23 @@ class Parser(private var tokens: List<Token>) {
         return statements
     }
 
-    private fun printStatement() : Stmt {
-        val value : Expr = expression()
+    private fun printStatement(): Stmt {
+        val value: Expr = expression()
         consume(TokenType.SEMICOLON, "Expected ; after value")
         return Stmt.Companion.Print(value)
     }
 
-    private fun expressionStatement() : Stmt {
-        val expr : Expr = expression()
+    private fun expressionStatement(): Stmt {
+        val expr: Expr = expression()
         consume(TokenType.SEMICOLON, "Expected ; after value")
         return Stmt.Companion.Expression(expr)
     }
 
-    private fun expression() : Expr {
+    private fun expression(): Expr {
         return assignment()
     }
 
-    private fun assignment() : Expr {
+    private fun assignment(): Expr {
         val expr = or()
 
         if (match(TokenType.EQUAL)) {
@@ -119,7 +168,7 @@ class Parser(private var tokens: List<Token>) {
     private fun or(): Expr {
         var expr: Expr = and()
 
-        while(match(TokenType.OR)) {
+        while (match(TokenType.OR)) {
             val operator = previous()
             val right = and()
 
@@ -143,12 +192,12 @@ class Parser(private var tokens: List<Token>) {
     }
 
     private fun equality(): Expr {
-        var expr : Expr = comparison()
+        var expr: Expr = comparison()
 
-        while(match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+        while (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             val operator = previous()
             val right = comparison()
-            expr =  Expr.Companion.Binary(expr, operator, right)
+            expr = Expr.Companion.Binary(expr, operator, right)
         }
 
         return expr
@@ -157,12 +206,11 @@ class Parser(private var tokens: List<Token>) {
     private fun comparison(): Expr {
         var expr = term()
 
-        while(
-            match(TokenType.GREATER
-                , TokenType.EQUAL_EQUAL
-                , TokenType.LESS
-                , TokenType.LESS_EQUAL))
-        {
+        while (
+            match(
+                TokenType.GREATER, TokenType.EQUAL_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL
+            )
+        ) {
             val operator = previous()
             val right = term()
             expr = Expr.Companion.Binary(expr, operator, right)
@@ -186,7 +234,7 @@ class Parser(private var tokens: List<Token>) {
     private fun factor(): Expr {
         var expr = unary()
 
-        while(match(TokenType.SLASH, TokenType.STAR)) {
+        while (match(TokenType.SLASH, TokenType.STAR)) {
             val operator = previous()
             val right = unary()
             expr = Expr.Companion.Binary(expr, operator, right)
@@ -219,7 +267,7 @@ class Parser(private var tokens: List<Token>) {
         if (match(TokenType.IDENTIFIERS))
             return Expr.Companion.Variable(previous())
 
-        if (match (TokenType.LEFT_PAREN)) {
+        if (match(TokenType.LEFT_PAREN)) {
             val expr = expression()
             consume(TokenType.RIGHT_PAREN, "Expected ')' after the expression")
             return Expr.Companion.Grouping(expr)
@@ -230,7 +278,7 @@ class Parser(private var tokens: List<Token>) {
         throw error(peek(), "Expected an expression.")
     }
 
-    private fun consume(type: TokenType, message: String) : Token {
+    private fun consume(type: TokenType, message: String): Token {
         if (check(type))
             return advance()
         throw error(peek(), message)
@@ -239,7 +287,7 @@ class Parser(private var tokens: List<Token>) {
     /**
      * start error handling
      */
-    private fun error(token: Token, message: String) : ParseError {
+    private fun error(token: Token, message: String): ParseError {
         Lox.error(token, message)
         return ParseError()
     }
@@ -247,11 +295,11 @@ class Parser(private var tokens: List<Token>) {
     private fun synchronize() {
         advance()
 
-        while(!isAtEnd()){
+        while (!isAtEnd()) {
             if (previous().type == TokenType.SEMICOLON)
                 return
 
-            when(peek().type) {
+            when (peek().type) {
                 TokenType.CLASS -> return
                 TokenType.FUN -> return
                 TokenType.VAR -> return
@@ -275,9 +323,9 @@ class Parser(private var tokens: List<Token>) {
      * start helper methods for parsing
      */
 
-    private fun match(vararg types: TokenType) : Boolean{
-        for(type in types){
-            if (check(type)){
+    private fun match(vararg types: TokenType): Boolean {
+        for (type in types) {
+            if (check(type)) {
                 advance()
                 return true
             }
@@ -286,37 +334,37 @@ class Parser(private var tokens: List<Token>) {
         return false
     }
 
-    private fun check(type: TokenType) : Boolean {
+    private fun check(type: TokenType): Boolean {
         if (isAtEnd())
             return false
         return peek().type == type
     }
 
-    private fun advance() : Token {
+    private fun advance(): Token {
         if (!isAtEnd())
             current++
         return previous()
     }
 
-    private fun isAtEnd() : Boolean {
+    private fun isAtEnd(): Boolean {
         return peek().type == TokenType.EOF
     }
 
-    private fun peek() : Token {
+    private fun peek(): Token {
         return tokens.get(current)
     }
 
-    private fun previous() : Token {
-        return tokens.get(current-1)
+    private fun previous(): Token {
+        return tokens.get(current - 1)
     }
 
     /**
      * end helper functions
      */
 
-    fun parse() : List<Stmt> {
+    fun parse(): List<Stmt> {
         val statements = mutableListOf<Stmt>()
-        while(!isAtEnd()){
+        while (!isAtEnd()) {
             declarations()?.let { statements.add(it) }
         }
         return statements
